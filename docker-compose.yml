@@ -1,0 +1,11 @@
+version: '2'
+
+services: 
+  linuxbox:
+    build: .
+    image: 'idevice'
+    command: bash -c "/sbin/ldconfig && sleep 3 && /usr/sbin/usbmuxd"
+    devices:
+     - '/dev/disk3:/dev/disk3s1'
+    tty: true
+    privileged: true

@@ -54,5 +54,5 @@ RUN git clone https://github.com/libimobiledevice/libimobiledevice.git \
 
 RUN apt-get -y install ideviceinstaller
 
-CMD cd && ldconfig && usbmuxd&
+CMD cd
 

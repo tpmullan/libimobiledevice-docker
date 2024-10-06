@@ -1,11 +1,4 @@
-FROM ruby:2.3-slim
-# Docker images can start off with nothing, but it's extremely
-# common to pull in from a base image. In our case we're pulling
-# in from the slim version of the official Ruby 2.3 image.
-#
-# Details about this image can be found here:
-# https://hub.docker.com/_/ruby/
-#
+FROM debian:testing-slim
 # Slim is pulling in from the official Debian Jessie image.
 #
 # You can tell it's using Debian Jessie by clicking the
@@ -14,26 +7,53 @@ FROM ruby:2.3-slim
 # The Docker hub is the standard place for you to find official
 # Docker images. Think of it like GitHub but for Docker images.
 
-MAINTAINER Yi <minsparky@gmail.com>
+MAINTAINER Tom <tpmullan@gmail.com>
 # It is good practice to set a maintainer for all of your Docker
 # images. It's not necessary but it's a good habit.
 
-RUN apt-get update && apt-get install -qq -y --no-install-recommends \
-build-essential nodejs libpq-dev git usbutils
-# Ensure that our apt package list is updated and install a few
-# packages to ensure that we can compile assets (nodejs) and
-# communicate with PostgreSQL (libpq-dev).
-
-RUN apt-get install -qq -y --no-install-recommends usbmuxd make automake autoconf libtool pkg-config gcc cython doxygen
-
-RUN apt-get -y install libusbmuxd-dev libplist-dev libplist++-dev libssl-dev usbmuxd make automake autoconf libtool pkg-config gcc cython doxygen checkinstall libusb-1.0-0-dev libssl-dev python-dev python2.7-dev
+RUN apt-get update && apt-get install -qq -y \
+  autoconf \
+  automake \
+  build-essential \
+  checkinstall \
+  ca-certificates \
+  cython3 \
+  python3 \
+  python3-dev \
+  python3-pip \
+  python3-setuptools \
+  doxygen \
+  git \
+  libcurl4 \
+  libcurl4-openssl-dev \
+  libssl-dev \
+  libffi-dev \
+  libtool-bin \
+  pkg-config \
+  usbmuxd
 
 ENV INSTALL_PATH /src
 RUN mkdir -p $INSTALL_PATH
 
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
 WORKDIR $INSTALL_PATH
 RUN git clone https://github.com/libimobiledevice/libplist.git \
   && cd /src/libplist \
+  && ./autogen.sh \
+  && make \
+  && make install
+
+WORKDIR $INSTALL_PATH
+RUN git clone https://github.com/libimobiledevice/libtatsu.git \
+  && cd /src/libtatsu \
+  && ./autogen.sh \
+  && make \
+  && make install
+
+WORKDIR $INSTALL_PATH
+RUN git clone https://github.com/libimobiledevice/libimobiledevice-glue.git \
+  && cd /src/libimobiledevice-glue \
   && ./autogen.sh \
   && make \
   && make install
